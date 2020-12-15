@@ -1,41 +1,80 @@
-import React,{ useState, useEffect } from 'react';
+import React,{ Component } from "react";
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Toolbar';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import AddIcon from '@material-ui/icons/Add';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Divider from '@material-ui/core/Divider';
+import './TodoList.css';
 
-const TodoList = (props) =>{
-  const [todos, setTodos] = useState([]);
 
-  useEffect(() =>{
-    const todos_cp = JSON.parse(localStorage.getItem('todos')) || [];
-    setTodos(todos_cp);
-  },[])
-
-  const addTodo = () => {
-    props.history.push('/todos/add');
+class TodoList extends Component{
+  constructor(props){
+    super(props);
+    this.state = {
+      todos:[]
+    };
+    this.addTodo = this.addTodo.bind(this);
+    this.deleteTodo = this.deleteTodo.bind(this);
   }
 
-  const deleteTodo = (i) => {
-    const todos_cp = todos;
-    todos_cp.splice(i,1);
-    setTodos(todos_cp);
-    localStorage.setItem('todos', JSON.stringify(todos));
+  componentDidMount(){
+    const todos = JSON.parse(localStorage.getItem('todos')) || [];
+    this.setState({todos:todos});
   }
 
-  return (
-    <div>
-      <button onClick={addTodo}>ADD</button>
-      <h5>Todo List</h5>
-      <ul>
-        {
-          todos.map((todo,i) =>{
-            return(
-              <li key={i}>{todo}
-                <button onClick={()=>deleteTodo(i)}>DEL</button>
-              </li>
-            )
-          })
-        }
-      </ul>
-    </div>
-  )
+  addTodo(){
+    this.props.history.push('/todos/add');
+  }
+
+  deleteTodo(i){
+    const todos = this.state.todos;
+    todos.splice(i,1);
+    this.setState({todos:todos});
+    localStorage.setItem('todos', JSON.stringify(this.state.todos));
+  }
+
+  render(){
+    return(
+      <div>
+        <AppBar position="static">
+          <Toolbar>
+            <div className="toolbar-left"></div>
+            <Typography color="inherit" className="toolbar-center" >
+              My Todo
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <List>
+          {
+            this.state.todos.map((todo,i) =>{
+              return(
+                <div key={i}>
+                  <ListItem>
+                    <ListItemText>{todo}</ListItemText>
+                    <IconButton aria-label="Delete" onClick={() => this.deleteTodo(i)} >
+                    <DeleteIcon />
+                  </IconButton>
+                  </ListItem>
+                  <Divider />
+                </div>
+              )
+            })
+          }
+        </List>
+        <div className="bottom-right">
+          <Button color="primary" aria-label="Add" onClick={this.addTodo}>
+            <AddIcon/>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 }
 
 export default TodoList;
