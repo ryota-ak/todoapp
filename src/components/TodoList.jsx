@@ -1,50 +1,41 @@
-import { Component } from "react";
-import React from 'react';
+import React,{ useState, useEffect } from 'react';
 
+const TodoList = (props) =>{
+  const [todos, setTodos] = useState([]);
 
-class TodoList extends Component{
-  constructor(props){
-    super(props);
-    this.state = {
-      todos:[]
-    };
+  useEffect(() =>{
+    const todos_cp = JSON.parse(localStorage.getItem('todos')) || [];
+    setTodos(todos_cp);
+  },[])
+
+  const addTodo = () => {
+    props.history.push('/todos/add');
   }
 
-  componentDidMount(){
-    const todos = JSON.parse(localStorage.getItem('todos')) || [];
-    this.setState({todos:todos});
+  const deleteTodo = (i) => {
+    const todos_cp = todos;
+    todos_cp.splice(i,1);
+    setTodos(todos_cp);
+    localStorage.setItem('todos', JSON.stringify(todos));
   }
 
-  addTodo(){
-    this.props.history.push('/todos/add');
-  }
-
-  deleteTodo(i){
-    const todos = this.state.todos;
-    todos.splice(i,1);
-    this.setState({todos:todos});
-    localStorage.setItem('todos', JSON.stringify(this.state.todos));
-  }
-
-  render(){
-    return(
-      <div>
-        <button onClick={this.addTodo.bind(this)}>ADD</button>
-        <h5>Todo List</h5>
-        <ul>
-          {
-            this.state.todos.map((todo,i) =>{
-              return(
-                <li key={i}>{todo}
-                  <button onClick={this.deleteTodo.bind(this,i)}>DEL</button>
-                </li>
-              )
-            })
-          }
-        </ul>
-      </div>
-    )
-  }
+  return (
+    <div>
+      <button onClick={addTodo}>ADD</button>
+      <h5>Todo List</h5>
+      <ul>
+        {
+          todos.map((todo,i) =>{
+            return(
+              <li key={i}>{todo}
+                <button onClick={()=>deleteTodo(i)}>DEL</button>
+              </li>
+            )
+          })
+        }
+      </ul>
+    </div>
+  )
 }
 
 export default TodoList;
